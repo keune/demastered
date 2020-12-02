@@ -1,0 +1,28 @@
+{
+  "name": "demastered",
+  "version": "0.0.1",
+  "description": "Check recent scrobbles and clean stuff like Remastered or Album Version from track and album names",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "last.fm",
+    "spotify",
+    "scrobble"
+  ],
+  "author": "Ahmet Kun",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^0.21.0",
+    "axios-cookiejar-support": "^1.0.1",
+    "dotenv": "^8.2.0",
+    "lowdb": "^1.0.0",
+    "metadata-filter": "^1.1.0",
+    "readline-sync": "^1.4.10",
+    "tough-cookie": "^4.0.0"
+  },
+  "devDependencies": {
+    "eslint": "^7.14.0"
+  }
+}
