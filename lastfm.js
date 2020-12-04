@@ -125,28 +125,40 @@ const LastFM = {
     let sk = LastFM.getSessionKey();
     let deleteRes = await LastFM.deleteScrobble(track);
     if (deleteRes !== true) return false;
+    let addRes = await LastFM.scrobble(cleanTrackName, 
+      track.artist['#text'], 
+      cleanAlbumName, 
+      track.date.uts, 
+      track.mbid
+    );
+    return addRes;
+  },
+
+  scrobble: async (trackName, artistName, albumName, timestamp, mbid = '') => {
     let params = {
       method: 'track.scrobble',
-      artist: track.artist['#text'],
-      track: cleanTrackName,
-      timestamp: track.date.uts,
-      album: cleanAlbumName,
-      mbid: track.mbid,
+      artist: artistName,
+      track: trackName,
+      timestamp: timestamp,
+      album: albumName,
+      mbid: mbid,
       api_key: API_KEY,
-      sk: sk,
+      sk: LastFM.getSessionKey(),
     };
     params['api_sig'] = LastFM.getApiSig(params);
     params['format'] = 'json';
     try {
       let paramStr = new url.URLSearchParams(params).toString();
       let response = await axios.post(API_ROOT, paramStr);
-      let newScrobbleRes = false;
+      let res = false;
       if (response.data && response.data.scrobbles && response.data.scrobbles['@attr']) {
         if (response.data.scrobbles['@attr'].accepted == 1) {
-          newScrobbleRes = true;
+          res = true;
+        } else {
+          console.log('Unexpected response', response.data);
         }
       }
-      return newScrobbleRes;
+      return res;
     } catch (error) {
       console.log(error.message);
       return false;
