@@ -7,7 +7,8 @@ It turns this ugliness (caused by Spotify):
 
 <br>
 to this:
-<br><br>
+<br>
+
 ![](https://i.imgur.com/sR5KHKP.png?raw=true "After")
 
 ## Why
