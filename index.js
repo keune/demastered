@@ -1,12 +1,15 @@
 require('dotenv').config();
 const MetadataFilter = require('metadata-filter');
+
+const db = require('./db');
 const lastfm = require('./lastfm');
 
 (async function() {
   if (!lastfm.checkCreds()) {
     process.exit(1);
   }
-  let recentTracks = await lastfm.getRecentTracks(process.env.LAST_FM_USERNAME);
+  let userName = db.getValue(db.KEY_LAST_FM_USER_NAME);
+  let recentTracks = await lastfm.getRecentTracks(userName);
   if (recentTracks) {
     const filter = MetadataFilter.getSpotifyFilter();
     for (let i = 0; i < recentTracks.length; i++) {

@@ -2,9 +2,10 @@ require('dotenv').config();
 const axios = require('axios').default;
 const axiosCookieJarSupport = require('axios-cookiejar-support').default;
 const tough = require('tough-cookie');
-const readlineSync = require('readline-sync');
 const url = require('url');
 
+const db = require('./db');
+const lastfm = require('./lastfm');
 const quickCrypto = require('./quick-crypto');
 const loginUrl = 'https://secure.last.fm/login';
 axiosCookieJarSupport(axios);
@@ -13,21 +14,9 @@ const cookieJar = new tough.CookieJar();
 let csrfToken;
 
 (async () => {
-  let username = process.env.LAST_FM_USERNAME;
-  if (!username) {
-    throw new Error('Please set your username in .env file.');
-  }
-  const db = require('./db');
-  let encPassword = db.getValue('encPassword');
-  let password;
-  if (encPassword) {
-    password = quickCrypto.decryptText(encPassword);
-  }
-  if (!password) {
-    console.log('Please enter your last.fm credentials to log in.');
-    password = readlineSync.question('Password: ', {hideEchoBack: true});
-    db.writeValue('encPassword', quickCrypto.encryptText(password));
-  }
+  let lastFmUserName = lastfm.askAndUpdateUserName();
+  let encPassword = lastfm.askAndUpdatePassword();
+  let password = quickCrypto.decryptText(encPassword);
 
   let response;
   try {
@@ -41,13 +30,13 @@ let csrfToken;
   }
 
   csrfToken = response.data.match(/<input[^>]+name='csrfmiddlewaretoken'[^>]+>/g)[0].match(/value='([^']+)'/)[1];
-  console.log("Initial CSRF Token extracted:     " + csrfToken);
+  console.log('Initial CSRF Token extracted: ' + csrfToken);
 
   let cookies = await cookieJar.getCookies(loginUrl);
-  console.log("Initial session id:               " + cookies.filter(c => c.key == 'sessionid')[0].value);
+  console.log('Initial session id: ' + cookies.filter(c => c.key == 'sessionid')[0].value);
 
   const paramStr = new url.URLSearchParams({
-    username_or_email: username,
+    username_or_email: lastFmUserName,
     password: password,
     csrfmiddlewaretoken: csrfToken
   }).toString();
@@ -79,8 +68,8 @@ let csrfToken;
 
     //console.log('Login CSRF Token extracted:       ' + csrfCookie.value);
     //console.log('Login Session ID Token extracted: ' + sessionCookie.value);
-    db.writeValue('csrfToken', csrfCookie.value);
-    db.writeValue('sessionId', sessionCookie.value);
+    db.writeValue(db.KEY_CSRF_TOKEN, csrfCookie.value);
+    db.writeValue(db.KEY_SESSION_ID, sessionCookie.value);
     console.log(`Login successful, session saved to ${process.env.DB_FILE} file.`);
   } else {
     console.log('Login Failed');

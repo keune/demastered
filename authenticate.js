@@ -1,5 +1,6 @@
 require('dotenv').config();
 const readlineSync = require('readline-sync');
+const db = require('./db');
 const lastfm = require('./lastfm');
 
 (async function() {
@@ -19,7 +20,6 @@ const lastfm = require('./lastfm');
     process.exit(1);
   }
 
-  const db = require('./db');
-  db.writeValue('sessionKey', sessionKey);
+  db.writeValue(db.KEY_SESSION_KEY, sessionKey);
   console.log('Your session key is saved in ' + process.env.DB_FILE);
 })();

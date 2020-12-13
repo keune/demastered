@@ -3,14 +3,17 @@ const crypto = require('crypto');
 const axios = require('axios').default;
 const axiosCookieJarSupport = require('axios-cookiejar-support').default;
 const tough = require('tough-cookie');
+const readlineSync = require('readline-sync');
 const url = require('url');
+
+const quickCrypto = require('./quick-crypto');
 const db = require('./db');
 
 const API_ROOT = 'http://ws.audioscrobbler.com/2.0/';
 const API_KEY = process.env.LAST_FM_API_KEY;
 const API_SECRET = process.env.LAST_FM_API_SECRET;
-const USERNAME = process.env.LAST_FM_USERNAME;
 const WEBSITE_ROOT = 'https://www.last.fm/';
+const USERNAME = db.getValue(db.KEY_LAST_FM_USER_NAME);
 
 axiosCookieJarSupport(axios);
 
@@ -29,23 +32,64 @@ const LastFM = {
       console.log('Enter your API credentials in .env file');
       return false;
     }
-    if (!db.getValue('sessionKey')) {
+    if (!db.getValue(db.KEY_SESSION_KEY)) {
       console.log('Run authenticate.js to authenticate with last.fm api.');
       return false;
     }
-    if (!db.getValue('encPassword') || 
-      !db.getValue('csrfToken')|| 
-      !db.getValue('sessionId')) {
+    if (!db.getValue(db.KEY_ENC_PASSWORD) || 
+      !db.getValue(db.KEY_CSRF_TOKEN)|| 
+      !db.getValue(db.KEY_SESSION_ID)) {
       console.log('Run website-login.js to log into last.fm website.');
       return false;
     }
     return true;
   },
 
+  askAndUpdateUserName: () => {
+    let lastFmUserName = db.getValue(db.KEY_LAST_FM_USER_NAME) || '';
+    let question = 'Your last.fm username: ';
+    if (lastFmUserName)
+      question += `(${lastFmUserName}) `;
+    while (true) {
+      let newLastFmUserName = readlineSync.question(question) || lastFmUserName;
+      if (newLastFmUserName) {
+        lastFmUserName = newLastFmUserName;
+        break;
+      }
+    }
+    db.writeValue(db.KEY_LAST_FM_USER_NAME, lastFmUserName);
+    console.log(`Your last.fm username (${lastFmUserName}) is saved in ` + process.env.DB_FILE);
+    return lastFmUserName;
+  },
+
+  askAndUpdatePassword: () => {
+    let encPassword = db.getValue(db.KEY_ENC_PASSWORD);
+    let password;
+    if (encPassword) {
+      password = quickCrypto.decryptText(encPassword);
+    }
+    let question = 'Your last.fm password: ';
+    if (password) {
+      question += '(Hit Enter to keep using the same password.) ';
+    }
+    while (true) {
+      let newPassword = readlineSync.question(question, {hideEchoBack: true}) || password;
+      if (newPassword) {
+        password = newPassword;
+        break;
+      }
+    }
+
+    encPassword = quickCrypto.encryptText(password);
+    db.writeValue(db.KEY_ENC_PASSWORD, encPassword);
+    console.log(`Your encrypted last.fm password is saved in ` + process.env.DB_FILE);
+    return encPassword;
+  },
+
   getConsentUrl: (token) => `${WEBSITE_ROOT}api/auth/?api_key=${API_KEY}&token=${token}`,
 
   getSessionKey: () => {
-    let sk = db.getValue('sessionKey');
+    let sk = db.getValue(db.KEY_SESSION_KEY);
     if (typeof sk === 'string' && sk.length === 32) {
       return sk;
     }
@@ -122,7 +166,6 @@ const LastFM = {
   },
 
   fixScrobble: async (track, cleanTrackName, cleanAlbumName) => {
-    let sk = LastFM.getSessionKey();
     let deleteRes = await LastFM.deleteScrobble(track);
     if (deleteRes !== true) return false;
     let addRes = await LastFM.scrobble(cleanTrackName, 
@@ -168,7 +211,7 @@ const LastFM = {
   deleteScrobble: async (track) => {
     let response;
     const paramStr = new url.URLSearchParams({
-      csrfmiddlewaretoken: db.getValue('csrfToken'),
+      csrfmiddlewaretoken: db.getValue(db.KEY_CSRF_TOKEN),
       artist_name: track.artist['#text'],
       track_name: track.name,
       timestamp: track.date.uts,
@@ -176,8 +219,8 @@ const LastFM = {
     }).toString();
 
     try {
-      let csrfToken = db.getValue('csrfToken');
-      let sessionId = db.getValue('sessionId');
+      let csrfToken = db.getValue(db.KEY_CSRF_TOKEN);
+      let sessionId = db.getValue(db.KEY_SESSION_ID);
 
       let csrfTokenCookie = new tough.Cookie();
       csrfTokenCookie.key = 'csrftoken';
