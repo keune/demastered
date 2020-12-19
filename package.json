@@ -24,5 +24,13 @@
   },
   "devDependencies": {
     "eslint": "^7.14.0"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/keune/demastered.git"
+  },
+  "bugs": {
+    "url": "https://github.com/keune/demastered/issues"
+  },
+  "homepage": "https://github.com/keune/demastered#readme"
 }
