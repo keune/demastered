@@ -18,12 +18,8 @@ const USERNAME = db.getValue(db.KEY_LAST_FM_USER_NAME);
 axiosCookieJarSupport(axios);
 
 const getJSON = async (url) => {
-  try {
-    const response = await axios.get(url);
-    return response.data;
-  } catch (error) {
-    throw error;
-  }
+  const response = await axios.get(url);
+  return response.data;
 };
 
 const LastFM = {
@@ -50,13 +46,12 @@ const LastFM = {
     let question = 'Your last.fm username: ';
     if (lastFmUserName)
       question += `(${lastFmUserName}) `;
-    while (true) {
+    do {
       let newLastFmUserName = readlineSync.question(question) || lastFmUserName;
       if (newLastFmUserName) {
         lastFmUserName = newLastFmUserName;
-        break;
       }
-    }
+    } while (!lastFmUserName);
     db.writeValue(db.KEY_LAST_FM_USER_NAME, lastFmUserName);
     console.log(`Your last.fm username (${lastFmUserName}) is saved in ` + process.env.DB_FILE);
     return lastFmUserName;
@@ -72,13 +67,12 @@ const LastFM = {
     if (password) {
       question += '(Hit Enter to keep using the same password.) ';
     }
-    while (true) {
+    do {
       let newPassword = readlineSync.question(question, {hideEchoBack: true}) || password;
       if (newPassword) {
         password = newPassword;
-        break;
       }
-    }
+    } while (!password);
 
     encPassword = quickCrypto.encryptText(password);
     db.writeValue(db.KEY_ENC_PASSWORD, encPassword);
@@ -150,12 +144,12 @@ const LastFM = {
     return false;
   },
 
-  getRecentTracks: async (userName) => {
+  getRecentTracks: async (userName, limit = 200) => {
     let params = {
       method: 'user.getrecenttracks',
       user: userName,
       api_key: API_KEY,
-      'limit': 200
+      limit: limit
     };
     let url = LastFM.getUrl(params);
     let response = await getJSON(url);

@@ -34,5 +34,3 @@ const lastfm = require('./lastfm');
     }
   }
 })();
-
-//console.log(MetadataFilter.removeRemastered('Jane Doe (Remastered)'));

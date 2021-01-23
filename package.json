@@ -4,6 +4,7 @@
   "description": "Check recent scrobbles and clean stuff like Remastered or Album Version from track and album names",
   "main": "index.js",
   "scripts": {
+    "lint": "eslint \"**/*.js\"",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
