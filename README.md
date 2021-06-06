@@ -26,9 +26,10 @@ There is no straight-forward way to update or fix a scrobble. For that reason, t
 ## How to use
 1. Create a last.fm **API account** [here](https://www.last.fm/api/account/create). You can leave callback URL empty.
 If you have existing credentials, you can use them.
+[This page](https://www.last.fm/api/accounts) should list all of your API Applications.
 2. Copy `.env.example` file to `.env` and enter API key and API secret information.
 3. Run `node authenticate.js` and follow the instructions. It'll ask you to allow access to your last.fm account for the API account you created.
-4. Run `website-login.js` to log into last.fm. Your encrypted password will be saved to a local .json file. It is not sent anywhere except the last.fm website.
+4. Run `node website-login.js` to log into last.fm. Your encrypted password will be saved to a local .json file. It is not sent anywhere except the last.fm website.
 5. After that, you can run `node index.js`. It will pull your recent scrobbles and apply the necessary fixes.
 6. You can periodically run `node index.js` with a cronjob or any other methods. If your credentials change, you can run `node authenticate.js` and/or `node website-login.js` again.
 
