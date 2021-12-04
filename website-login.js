@@ -7,7 +7,7 @@ const url = require('url');
 const db = require('./db');
 const lastfm = require('./lastfm');
 const quickCrypto = require('./quick-crypto');
-const loginUrl = 'https://secure.last.fm/login';
+const loginUrl = 'https://www.last.fm/login';
 axiosCookieJarSupport(axios);
 const cookieJar = new tough.CookieJar();
 
