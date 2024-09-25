@@ -1,10 +1,9 @@
 {
   "name": "demastered",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Check recent scrobbles and clean stuff like Remastered or Album Version from track and album names",
   "main": "index.js",
   "scripts": {
-    "lint": "eslint \"**/*.js\"",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
@@ -12,19 +11,17 @@
     "spotify",
     "scrobble"
   ],
+  "type": "module",
   "author": "Ahmet Kun",
   "license": "ISC",
   "dependencies": {
-    "axios": "^0.21.1",
-    "axios-cookiejar-support": "^1.0.1",
-    "dotenv": "^8.6.0",
-    "lowdb": "^1.0.0",
-    "metadata-filter": "^1.3.0",
-    "readline-sync": "^1.4.10",
-    "tough-cookie": "^4.0.0"
-  },
-  "devDependencies": {
-    "eslint": "^7.28.0"
+    "@web-scrobbler/metadata-filter": "^3.2.0",
+    "axios": "^1.7.7",
+    "axios-cookiejar-support": "^5.0.2",
+    "dotenv": "^16.4.5",
+    "lowdb": "^7.0.1",
+    "prompt-sync-plus": "^1.0.2",
+    "tough-cookie": "^5.0.0"
   },
   "repository": {
     "type": "git",
@@ -33,5 +30,10 @@
   "bugs": {
     "url": "https://github.com/keune/demastered/issues"
   },
-  "homepage": "https://github.com/keune/demastered#readme"
+  "homepage": "https://github.com/keune/demastered#readme",
+  "devDependencies": {
+    "@eslint/js": "^9.11.1",
+    "eslint": "^9.11.1",
+    "globals": "^15.9.0"
+  }
 }

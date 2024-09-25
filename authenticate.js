@@ -1,7 +1,8 @@
-require('dotenv').config();
-const readlineSync = require('readline-sync');
-const db = require('./db');
-const lastfm = require('./lastfm');
+import 'dotenv/config';
+import psp from 'prompt-sync-plus';
+
+import db from './db.js';
+import {lastfm} from './lastfm.js';
 
 (async function() {
   let token = await lastfm.getToken();
@@ -13,7 +14,8 @@ const lastfm = require('./lastfm');
   console.log('Go to the following URL to authenticate:');
   console.log(consentUrl);
   console.log("\n\n");
-  readlineSync.question('After you\'ve authenticated, hit Enter key to continue.', {hideEchoBack: true, mask: ''});
+  const prompt = psp();
+  prompt.hide('After you\'ve authenticated, hit Enter key to continue.');
   let sessionKey = await lastfm.getSession(token);
   if (!sessionKey) {
     console.log('Failed to get session key.');

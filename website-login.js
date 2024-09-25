@@ -1,15 +1,16 @@
-require('dotenv').config();
-const axios = require('axios').default;
-const axiosCookieJarSupport = require('axios-cookiejar-support').default;
-const tough = require('tough-cookie');
-const url = require('url');
+import 'dotenv/config';
+import axios from 'axios';
+import { wrapper } from 'axios-cookiejar-support';
+import * as tough from 'tough-cookie';
+import * as url from "node:url";
 
-const db = require('./db');
-const lastfm = require('./lastfm');
-const quickCrypto = require('./quick-crypto');
+import db from './db.js';
+import {lastfm} from './lastfm.js';
+import quickCrypto from './quick-crypto.js';
 const loginUrl = 'https://www.last.fm/login';
-axiosCookieJarSupport(axios);
+
 const cookieJar = new tough.CookieJar();
+const axiosClient = wrapper(axios.create({ cookieJar }));
 
 let csrfToken;
 
@@ -20,7 +21,7 @@ let csrfToken;
 
   let response;
   try {
-    response = await axios.get(loginUrl, {jar: cookieJar, withCredentials: true});
+    response = await axiosClient.get(loginUrl, {jar: cookieJar});
   } catch (error) {
     console.log(error);
   }
@@ -41,7 +42,7 @@ let csrfToken;
     csrfmiddlewaretoken: csrfToken
   }).toString();
   try {
-    response = await axios.post(loginUrl, paramStr, {
+    response = await axiosClient.post(loginUrl, paramStr, {
       jar: cookieJar,
       withCredentials: true,
       gzip: true,

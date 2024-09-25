@@ -1,13 +1,13 @@
-require('dotenv').config();
-const crypto = require('crypto');
-const axios = require('axios').default;
-const axiosCookieJarSupport = require('axios-cookiejar-support').default;
-const tough = require('tough-cookie');
-const readlineSync = require('readline-sync');
-const url = require('url');
+import 'dotenv/config';
+const crypto = await import('node:crypto');
+import axios from 'axios';
+import { wrapper } from 'axios-cookiejar-support';
+import * as tough from 'tough-cookie';
+import psp from 'prompt-sync-plus';
+import * as url from "node:url";
 
-const quickCrypto = require('./quick-crypto');
-const db = require('./db');
+import quickCrypto from './quick-crypto.js';
+import db from './db.js';
 
 const API_ROOT = 'http://ws.audioscrobbler.com/2.0/';
 const API_KEY = process.env.LAST_FM_API_KEY;
@@ -15,10 +15,11 @@ const API_SECRET = process.env.LAST_FM_API_SECRET;
 const WEBSITE_ROOT = 'https://www.last.fm/';
 const USERNAME = db.getValue(db.KEY_LAST_FM_USER_NAME);
 
-axiosCookieJarSupport(axios);
+const cookieJar = new tough.CookieJar();
+const axiosClient = wrapper(axios.create({ cookieJar }));
 
 const getJSON = async (url) => {
-  const response = await axios.get(url);
+  const response = await axiosClient.get(url);
   return response.data;
 };
 
@@ -47,7 +48,8 @@ const LastFM = {
     if (lastFmUserName)
       question += `(${lastFmUserName}) `;
     do {
-      let newLastFmUserName = readlineSync.question(question) || lastFmUserName;
+      const prompt = psp();
+      let newLastFmUserName = prompt(question) || lastFmUserName;
       if (newLastFmUserName) {
         lastFmUserName = newLastFmUserName;
       }
@@ -68,7 +70,8 @@ const LastFM = {
       question += '(Hit Enter to keep using the same password.) ';
     }
     do {
-      let newPassword = readlineSync.question(question, {hideEchoBack: true}) || password;
+      const prompt = psp();
+      let newPassword = prompt.hide(question) || password;
       if (newPassword) {
         password = newPassword;
       }
@@ -186,7 +189,7 @@ const LastFM = {
     params['format'] = 'json';
     try {
       let paramStr = new url.URLSearchParams(params).toString();
-      let response = await axios.post(API_ROOT, paramStr);
+      let response = await axiosClient.post(API_ROOT, paramStr);
       let res = false;
       if (response.data && response.data.scrobbles && response.data.scrobbles['@attr']) {
         if (response.data.scrobbles['@attr'].accepted == 1) {
@@ -224,13 +227,12 @@ const LastFM = {
       sessionIdCookie.key = 'sessionid';
       sessionIdCookie.value = sessionId;
 
-      let cookieJar = new tough.CookieJar();
+      //let cookieJar = new tough.CookieJar();
       await cookieJar.setCookie(csrfTokenCookie, WEBSITE_ROOT);
       await cookieJar.setCookie(sessionIdCookie, WEBSITE_ROOT);
 
-      response = await axios.post(`${WEBSITE_ROOT}user/${USERNAME}/library/delete`, paramStr, {
+      response = await axiosClient.post(`${WEBSITE_ROOT}user/${USERNAME}/library/delete`, paramStr, {
         jar: cookieJar,
-        withCredentials: true,
         gzip: true,
         maxRedirects: 0,
         validateStatus: (status) => {
@@ -255,4 +257,4 @@ const LastFM = {
   }
 };
 
-module.exports = LastFM;
+export const lastfm = LastFM;

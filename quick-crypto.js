@@ -1,4 +1,4 @@
-const crypto = require('crypto');
+const crypto = await import('node:crypto');
 
 const ALGO = 'aes-192-cbc';
 const SALT = 'scrobblescrobble';
@@ -17,4 +17,4 @@ const QuickCrypto = {
   }
 };
 
-module.exports = QuickCrypto;
+export default QuickCrypto;

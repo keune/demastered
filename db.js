@@ -1,10 +1,10 @@
-require('dotenv').config();
-const low = require('lowdb');
-const FileSync = require('lowdb/adapters/FileSync');
-const adapter = new FileSync(process.env.DB_FILE);
-const db = low(adapter);
+import 'dotenv/config';
+import { LowSync } from 'lowdb'
+import { JSONFileSync } from 'lowdb/node'
 
-module.exports = {
+const db = new LowSync(new JSONFileSync(process.env.DB_FILE), {})
+
+export default {
   KEY_LAST_FM_USER_NAME: 'lastFmUserName',
   KEY_SESSION_KEY: 'sessionKey',
   KEY_ENC_PASSWORD: 'encPassword',
@@ -12,10 +12,13 @@ module.exports = {
   KEY_SESSION_ID: 'sessionId',
 
   getValue: (key) => {
-    return db.get(key).value();
+    db.read();
+    return db.data[key];
   },
 
   writeValue: (key, value) => {
-    return db.set(key, value).write();
+    db.read();
+    db.data[key] = value;
+    return db.write();
   },
 };

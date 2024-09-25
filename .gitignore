@@ -13,3 +13,5 @@ build/Release
 node_modules/
 
 .eslintcache
+
+.idea

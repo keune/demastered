@@ -1,8 +1,7 @@
-require('dotenv').config();
-const MetadataFilter = require('metadata-filter');
+import * as MetadataFilter from '@web-scrobbler/metadata-filter';
 
-const db = require('./db');
-const lastfm = require('./lastfm');
+import db from './db.js';
+import {lastfm} from './lastfm.js';
 
 (async function() {
   if (!lastfm.checkCreds()) {
@@ -11,7 +10,9 @@ const lastfm = require('./lastfm');
   let userName = db.getValue(db.KEY_LAST_FM_USER_NAME);
   let recentTracks = await lastfm.getRecentTracks(userName);
   if (recentTracks) {
-    const filter = MetadataFilter.getSpotifyFilter();
+    const filter = MetadataFilter.createSpotifyFilter();
+    filter.extend(MetadataFilter.createAmazonFilter());
+
     for (let i = 0; i < recentTracks.length; i++) {
       let track = recentTracks[i];
       if (!track.date) continue;
