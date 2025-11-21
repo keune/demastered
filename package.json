@@ -1,6 +1,6 @@
 {
   "name": "demastered",
-  "version": "0.0.2",
+  "version": "0.1.0",
   "description": "Check recent scrobbles and clean stuff like Remastered or Album Version from track and album names",
   "main": "index.js",
   "scripts": {
@@ -21,7 +21,8 @@
     "dotenv": "^16.4.5",
     "lowdb": "^7.0.1",
     "prompt-sync-plus": "^1.0.2",
-    "tough-cookie": "^5.0.0"
+    "tough-cookie": "^5.0.0",
+    "xlsx": "^0.18.5"
   },
   "repository": {
     "type": "git",

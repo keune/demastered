@@ -33,6 +33,10 @@ If you have existing credentials, you can use them.
 5. After that, you can run `node index.js`. It will pull your recent scrobbles and apply the necessary fixes.
 6. You can periodically run `node index.js` with a cronjob or any other methods. If your credentials change, you can run `node authenticate.js` and/or `node website-login.js` again.
 
+## How to create and use replacements.xlsx for custom replacements
+
+If you want to make custom replacements, you can copy `replacements.xlsx.example` to `replacements.xlsx` and edit it. It should have two sheets: tracks and albums. Each sheet has two columns: from and to. from is the original track name, to is the fixed track name. The same goes for albums.
+
 ## Can I use this to do a full history cleanup?
 
 last.fm ignores scrobbles with a very old date, so this script can't be used to do a full history cleanup. If you consider upgrading to [last.fm pro](https://www.last.fm/pro), bulk-editing all scrobbles of a single track is possible.

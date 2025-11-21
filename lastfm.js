@@ -33,8 +33,8 @@ const LastFM = {
       console.log('Run authenticate.js to authenticate with last.fm api.');
       return false;
     }
-    if (!db.getValue(db.KEY_ENC_PASSWORD) || 
-      !db.getValue(db.KEY_CSRF_TOKEN)|| 
+    if (!db.getValue(db.KEY_ENC_PASSWORD) ||
+      !db.getValue(db.KEY_CSRF_TOKEN) ||
       !db.getValue(db.KEY_SESSION_ID)) {
       console.log('Run website-login.js to log into last.fm website.');
       return false;
@@ -120,9 +120,9 @@ const LastFM = {
       'api_key': API_KEY,
       'method': 'auth.getToken',
     };
-    
+
     params['api_sig'] = LastFM.getApiSig(params);
-    
+
     let url = LastFM.getUrl(params);
     let response = await getJSON(url);
     if (response.token) {
@@ -138,7 +138,7 @@ const LastFM = {
       'token': token
     };
     params['api_sig'] = LastFM.getApiSig(params);
-    
+
     let url = LastFM.getUrl(params);
     let response = await getJSON(url);
     if (response.session && response.session.key) {
@@ -165,10 +165,10 @@ const LastFM = {
   fixScrobble: async (track, cleanTrackName, cleanAlbumName) => {
     let deleteRes = await LastFM.deleteScrobble(track);
     if (deleteRes !== true) return false;
-    let addRes = await LastFM.scrobble(cleanTrackName, 
-      track.artist['#text'], 
-      cleanAlbumName, 
-      track.date.uts, 
+    let addRes = await LastFM.scrobble(cleanTrackName,
+      track.artist['#text'],
+      cleanAlbumName,
+      track.date.uts,
       track.mbid
     );
     return addRes;
@@ -189,7 +189,7 @@ const LastFM = {
     params['format'] = 'json';
     try {
       let paramStr = new url.URLSearchParams(params).toString();
-      let response = await axiosClient.post(API_ROOT, paramStr);
+      let response = await axiosClient.post(API_ROOT, paramStr, { timeout: 8000 });
       let res = false;
       if (response.data && response.data.scrobbles && response.data.scrobbles['@attr']) {
         if (response.data.scrobbles['@attr'].accepted == 1) {
@@ -235,6 +235,7 @@ const LastFM = {
         jar: cookieJar,
         gzip: true,
         maxRedirects: 0,
+        timeout: 8000,
         validateStatus: (status) => {
           return status <= 302;
         },

@@ -1,9 +1,10 @@
 import * as MetadataFilter from '@web-scrobbler/metadata-filter';
+import XLSX from 'xlsx';
 
 import db from './db.js';
-import {lastfm} from './lastfm.js';
+import { lastfm } from './lastfm.js';
 
-(async function() {
+(async function () {
   if (!lastfm.checkCreds()) {
     process.exit(1);
   }
@@ -13,6 +14,19 @@ import {lastfm} from './lastfm.js';
     const filter = MetadataFilter.createSpotifyFilter();
     filter.extend(MetadataFilter.createAmazonFilter());
 
+    let trackReplacements = [];
+    let albumReplacements = [];
+
+    try {
+      let replacements = XLSX.readFile('./replacements.xlsx');
+      const tracksReplacementSheet = replacements.Sheets['tracks'];
+      trackReplacements = XLSX.utils.sheet_to_json(tracksReplacementSheet);
+      const albumsReplacementSheet = replacements.Sheets['albums'];
+      albumReplacements = XLSX.utils.sheet_to_json(albumsReplacementSheet);
+    } catch (error) {
+      console.error(error.message);
+    }
+
     for (let i = 0; i < recentTracks.length; i++) {
       let track = recentTracks[i];
       if (!track.date) continue;
@@ -21,6 +35,21 @@ import {lastfm} from './lastfm.js';
 
       let cleanTrackName = filter.filterField('track', trackName);
       let cleanAlbumName = filter.filterField('album', albumName);
+
+      for (let j = 0; j < trackReplacements.length; j++) {
+        let replacement = trackReplacements[j];
+        if (trackName == replacement.from) {
+          cleanTrackName = replacement.to;
+          break;
+        }
+      }
+      for (let j = 0; j < albumReplacements.length; j++) {
+        let replacement = albumReplacements[j];
+        if (albumName == replacement.from) {
+          cleanAlbumName = replacement.to;
+          break;
+        }
+      }
 
       if (trackName != cleanTrackName || albumName != cleanAlbumName) {
         console.log(trackName, ' ---> ', cleanTrackName);

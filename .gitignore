@@ -15,3 +15,6 @@ node_modules/
 .eslintcache
 
 .idea
+
+replacements.xlsx
+*.~lock*

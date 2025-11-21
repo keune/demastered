@@ -5,7 +5,7 @@ import * as tough from 'tough-cookie';
 import * as url from "node:url";
 
 import db from './db.js';
-import {lastfm} from './lastfm.js';
+import { lastfm } from './lastfm.js';
 import quickCrypto from './quick-crypto.js';
 const loginUrl = 'https://www.last.fm/login';
 
@@ -21,7 +21,7 @@ let csrfToken;
 
   let response;
   try {
-    response = await axiosClient.get(loginUrl, {jar: cookieJar});
+    response = await axiosClient.get(loginUrl, { jar: cookieJar });
   } catch (error) {
     console.log(error);
   }
@@ -47,6 +47,7 @@ let csrfToken;
       withCredentials: true,
       gzip: true,
       maxRedirects: 0,
+      timeout: 8000,
       validateStatus: (status) => {
         return status <= 302;
       },
